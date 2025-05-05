@@ -1,4 +1,4 @@
-import React from 'react'
+// import { CVCreator } from './components/CVCreator'
 import { CVCreator } from './components/CVCreator'
 
 function App() {

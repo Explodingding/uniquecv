@@ -46,4 +46,4 @@ export interface SWOTData {
   threats: string[]
 }
 
-export type Template = 'timeline' | 'dashboard' | 'infographic' 
+export type Template = 'timeline' | 'dashboard' | 'infographic' | 'swot' 
