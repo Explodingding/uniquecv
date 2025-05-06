@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { CVData, Template, PersonalInfo, ExperienceItem } from '../types'
 import { motion } from 'framer-motion'
 import { PersonalInfoForm } from './cv-sections/PersonalInfoForm'
@@ -7,6 +7,22 @@ import { TimelineCV } from './templates/TimelineCV'
 import { DashboardCV } from './templates/DashboardCV'
 import { InfographicCV } from './templates/InfographicCV'
 import { SWOTCV } from './templates/SWOTCV'
+import { ComicCV } from './templates/ComicCV'
+import { TerminalCV } from './templates/TerminalCV'
+import { RetroCV } from './templates/RetroCV'
+import { EmojiCV } from './templates/EmojiCV'
+import { AsciiCV } from './templates/AsciiCV'
+import RPGCV from './templates/RPGCV'
+import SocialCV from './templates/SocialCV'
+import CodeCV from './templates/CodeCV'
+import PeriodicCV from './templates/PeriodicCV'
+import RecipeCV from './templates/RecipeCV'
+import MetroCV from './templates/MetroCV'
+import BoardCV from './templates/BoardCV'
+import { generatePDF } from '../utils/pdfGenerator'
+import { SkillsForm } from './cv-sections/SkillsForm'
+import { EducationForm } from './cv-sections/EducationForm'
+import { SWOTAnalysis } from './cv-sections/SWOTAnalysis'
 
 const sampleCVData: CVData = {
   personalInfo: {
@@ -82,9 +98,48 @@ const features = [
   },
 ]
 
+const templateDescriptions: Record<Template, string> = {
+  timeline: 'Klasyczna oś czasu z sekcjami',
+  dashboard: 'Nowoczesny dashboard z wykresami',
+  infographic: 'Infografika z kolorowymi blokami',
+  swot: 'Analiza SWOT w czterech sekcjach',
+  comic: 'Komiksowy styl z dymkami',
+  terminal: 'Terminal/CLI, zielony monospaced',
+  retro: 'Pixel-art, retro komputerowy',
+  emoji: 'Emoji, kolorowe bloki',
+  ascii: 'ASCII-art, ramki tekstowe',
+  rpg: 'Karta postaci z gry RPG',
+  social: 'Profil społecznościowy',
+  code: 'Interfejs edytora kodu',
+  periodic: 'Układ okresowy pierwiastków',
+  recipe: 'Karta przepisu kulinarnego',
+  metro: 'Mapa metra',
+  board: 'Plansza gry'
+}
+
+const templateIcons: Record<Template, string> = {
+  timeline: '🕒',
+  dashboard: '📊',
+  infographic: '📈',
+  swot: '🧩',
+  comic: '💬',
+  terminal: '🖥️',
+  retro: '🎮',
+  emoji: '😃',
+  ascii: '🔤',
+  rpg: '⚔️',
+  social: '👤',
+  code: '💻',
+  periodic: '🧪',
+  recipe: '📝',
+  metro: '🚇',
+  board: '🎲'
+}
+
 export const CVCreator: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<Template>('timeline')
   const [cvData, setCVData] = useState<CVData>(sampleCVData)
+  const [activeTab, setActiveTab] = useState<'personal' | 'experience' | 'skills' | 'education' | 'swot'>('personal')
 
   const handleTemplateChange = (template: Template) => {
     setSelectedTemplate(template)
@@ -112,6 +167,16 @@ export const CVCreator: React.FC = () => {
     }))
   }
 
+  const handleExportPDF = () => {
+    generatePDF('cv-preview')
+  }
+
+  const templateList: Template[] = [
+    'timeline', 'dashboard', 'infographic', 'swot', 'comic', 'terminal', 
+    'retro', 'emoji', 'ascii', 'rpg', 'social', 'code', 'periodic', 
+    'recipe', 'metro', 'board'
+  ]
+
   const renderTemplate = (template: Template, data: CVData) => {
     switch (template) {
       case 'timeline':
@@ -122,9 +187,44 @@ export const CVCreator: React.FC = () => {
         return <InfographicCV data={data} />
       case 'swot':
         return <SWOTCV data={data} />
+      case 'comic':
+        return <ComicCV data={data} />
+      case 'terminal':
+        return <TerminalCV data={data} />
+      case 'retro':
+        return <RetroCV data={data} />
+      case 'emoji':
+        return <EmojiCV data={data} />
+      case 'ascii':
+        return <AsciiCV data={data} />
+      case 'rpg':
+        return <RPGCV data={data} />
+      case 'social':
+        return <SocialCV data={data} />
+      case 'code':
+        return <CodeCV data={data} />
+      case 'periodic':
+        return <PeriodicCV data={data} />
+      case 'recipe':
+        return <RecipeCV data={data} />
+      case 'metro':
+        return <MetroCV data={data} />
+      case 'board':
+        return <BoardCV data={data} />
       default:
         return null
     }
+  }
+
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const handleScroll = (dir: 'left' | 'right') => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' })
+    }
+  }
+  const handleRandomTemplate = () => {
+    const idx = Math.floor(Math.random() * templateList.length)
+    setSelectedTemplate(templateList[idx])
   }
 
   return (
@@ -168,55 +268,98 @@ export const CVCreator: React.FC = () => {
       </section>
 
       {/* MAIN EDITOR SECTION */}
-      <main id="cv-editor" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Template Selection & Personal Info */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6 mb-8">
-              <h2 className="text-lg font-medium mb-4">Wybierz szablon</h2>
-              <div className="space-y-2">
-                {(['timeline', 'dashboard', 'infographic', 'swot'] as Template[]).map((template) => (
-                  <button
-                    key={template}
-                    onClick={() => handleTemplateChange(template)}
-                    className={`w-full px-4 py-2 rounded-md font-semibold shadow-sm transition-all ${
-                      selectedTemplate === template
-                        ? 'bg-primary text-white scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-primary hover:text-white'
-                    }`}
-                  >
-                    {template.charAt(0).toUpperCase() + template.slice(1)} CV
-                  </button>
-                ))}
+      <main id="cv-editor" className="max-w-5xl xl:max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16 py-12 flex flex-col items-center">
+        {/* Karuzela sticky nad podglądem CV */}
+        <div className="flex items-center gap-4 mb-8 bg-gray-50 py-4 px-3 rounded shadow border border-gray-200" style={{ height: 100, minHeight: 100, maxHeight: 100 }}>
+          <button onClick={() => handleScroll('left')} className="px-2 py-1 bg-gray-200 rounded-full text-2xl">◀</button>
+          <div ref={carouselRef} className="flex gap-4 overflow-x-auto no-scrollbar overflow-y-hidden" style={{ maxWidth: 1100, height: 90, minHeight: 90, maxHeight: 90 }}>
+            {templateList.map((template) => (
+              <div
+                key={template}
+                style={{ height: 86, minHeight: 86, maxHeight: 86 }}
+                className={`min-w-[90px] p-2 rounded-lg border-2 cursor-pointer flex flex-col items-center justify-center transition-all duration-200 ${selectedTemplate === template ? 'border-primary scale-110 bg-primary/10 shadow-lg' : 'border-gray-200 bg-white hover:bg-primary/5'}`}
+                onClick={() => setSelectedTemplate(template)}
+                title={templateDescriptions[template] || ''}
+              >
+                <span className="text-3xl mb-2">{templateIcons[template]}</span>
+                <div className="text-center font-bold text-[12px] leading-tight">{template.charAt(0).toUpperCase() + template.slice(1)} CV</div>
               </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium mb-4">Dane osobowe</h2>
-              <PersonalInfoForm data={cvData.personalInfo} onChange={handlePersonalInfoChange} />
-            </div>
+            ))}
           </div>
-
-          {/* CV Preview & Experience */}
-          <div className="lg:col-span-2 space-y-8">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="bg-white rounded-lg shadow p-6"
-            >
-              <h2 className="text-lg font-medium mb-4">Podgląd CV</h2>
-              <div className="min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center mb-6">
-                {renderTemplate(selectedTemplate, cvData)}
+          <button onClick={() => handleScroll('right')} className="px-2 py-1 bg-gray-200 rounded-full text-2xl">▶</button>
+          <button onClick={handleRandomTemplate} className="ml-2 px-4 py-2 bg-accent text-white rounded shadow hover:bg-accent-dark text-base">Losuj</button>
+        </div>
+        {/* Podgląd CV */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-white rounded-lg shadow p-8 mb-12 w-full max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
+        >
+          <h2 className="text-lg font-medium mb-4">Podgląd CV</h2>
+          <button
+            onClick={handleExportPDF}
+            className="mb-4 px-6 py-2 rounded-md bg-primary text-white font-semibold shadow hover:bg-primary-dark transition"
+          >
+            Eksportuj do PDF
+          </button>
+          <div id="cv-preview" className="min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center mb-6">
+            {renderTemplate(selectedTemplate, cvData)}
+          </div>
+        </motion.div>
+        {/* Edytor sekcji */}
+        <div className="w-full max-w-2xl xl:max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-6 mb-12">
+          <div className="flex flex-wrap gap-3 justify-center mb-6">
+            <button onClick={() => setActiveTab('personal')} className={`px-5 py-2 rounded-full font-semibold transition-all duration-150 shadow-sm ${activeTab === 'personal' ? 'bg-primary text-white scale-105 shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-primary/10'}`}>Dane osobowe</button>
+            <button onClick={() => setActiveTab('experience')} className={`px-5 py-2 rounded-full font-semibold transition-all duration-150 shadow-sm ${activeTab === 'experience' ? 'bg-primary text-white scale-105 shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-primary/10'}`}>Doświadczenie</button>
+            <button onClick={() => setActiveTab('skills')} className={`px-5 py-2 rounded-full font-semibold transition-all duration-150 shadow-sm ${activeTab === 'skills' ? 'bg-primary text-white scale-105 shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-primary/10'}`}>Umiejętności</button>
+            <button onClick={() => setActiveTab('education')} className={`px-5 py-2 rounded-full font-semibold transition-all duration-150 shadow-sm ${activeTab === 'education' ? 'bg-primary text-white scale-105 shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-primary/10'}`}>Edukacja</button>
+            <button onClick={() => setActiveTab('swot')} className={`px-5 py-2 rounded-full font-semibold transition-all duration-150 shadow-sm ${activeTab === 'swot' ? 'bg-primary text-white scale-105 shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-primary/10'}`}>SWOT</button>
+          </div>
+          <div className="mb-4">
+            {activeTab === 'personal' && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-medium mb-4">Dane osobowe</h2>
+                <PersonalInfoForm data={cvData.personalInfo} onChange={handlePersonalInfoChange} />
               </div>
-            </motion.div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium mb-4">Doświadczenie</h2>
-              <ExperienceForm
-                experiences={cvData.experience}
-                onAdd={handleAddExperience}
-                onUpdate={handleUpdateExperience}
-                onRemove={handleRemoveExperience}
-              />
-            </div>
+            )}
+            {activeTab === 'experience' && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-medium mb-4">Doświadczenie</h2>
+                <ExperienceForm
+                  experiences={cvData.experience}
+                  onAdd={handleAddExperience}
+                  onUpdate={handleUpdateExperience}
+                  onRemove={handleRemoveExperience}
+                />
+              </div>
+            )}
+            {activeTab === 'skills' && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-medium mb-4">Umiejętności</h2>
+                <SkillsForm
+                  skills={cvData.skills}
+                  onUpdate={skills => setCVData(prev => ({ ...prev, skills }))}
+                />
+              </div>
+            )}
+            {activeTab === 'education' && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-medium mb-4">Edukacja</h2>
+                <EducationForm
+                  education={cvData.education}
+                  onUpdate={education => setCVData(prev => ({ ...prev, education }))}
+                />
+              </div>
+            )}
+            {activeTab === 'swot' && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-medium mb-4">Analiza SWOT</h2>
+                <SWOTAnalysis
+                  data={cvData.swot}
+                  onUpdate={swot => setCVData(prev => ({ ...prev, swot }))}
+                />
+              </div>
+            )}
           </div>
         </div>
       </main>
