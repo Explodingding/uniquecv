@@ -141,10 +141,6 @@ export const CVCreator: React.FC = () => {
   const [cvData, setCVData] = useState<CVData>(sampleCVData)
   const [activeTab, setActiveTab] = useState<'personal' | 'experience' | 'skills' | 'education' | 'swot'>('personal')
 
-  const handleTemplateChange = (template: Template) => {
-    setSelectedTemplate(template)
-  }
-
   const handlePersonalInfoChange = (data: Partial<PersonalInfo>) => {
     setCVData(prev => ({ ...prev, personalInfo: { ...prev.personalInfo, ...data } }))
   }
