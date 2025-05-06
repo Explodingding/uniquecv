@@ -5,20 +5,20 @@ interface Props {
   data: CVData
 }
 
-const PeriodicCV: React.FC<Props> = ({ data }) => {
+const CreativeCV: React.FC<Props> = ({ data }) => {
   const totalExperience = data.experience.length
   const totalSkills = data.skills.length
   const totalEducation = data.education.length
 
   return (
     <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-6 rounded-2xl shadow-2xl border-4 border-purple-700 max-w-3xl mx-auto w-full font-serif">
-      {/* Periodic Header */}
+      {/* Creative Header */}
       <div className="text-center mb-6">
-        <h1 className="text-4xl font-extrabold text-purple-900 drop-shadow flex items-center justify-center gap-2">🧪 {data.personalInfo.name}</h1>
-        <p className="text-purple-700 text-lg">Professional Periodic</p>
+        <h1 className="text-4xl font-extrabold text-purple-900 drop-shadow flex items-center justify-center gap-2">🎨 {data.personalInfo.name}</h1>
+        <p className="text-purple-700 text-lg">Professional Creative</p>
       </div>
 
-      {/* Periodic Stats */}
+      {/* Creative Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-purple-50 p-4 rounded-lg text-center border-2 border-purple-400">
           <div className="text-2xl font-bold text-purple-900">{totalExperience}</div>
@@ -38,9 +38,9 @@ const PeriodicCV: React.FC<Props> = ({ data }) => {
         </div>
       </div>
 
-      {/* Experience Elements */}
+      {/* Experience Items */}
       <section className="mb-8">
-        <h2 className="text-xl font-bold text-purple-900 mb-3 flex items-center gap-2">🧪 Elements</h2>
+        <h2 className="text-xl font-bold text-purple-900 mb-3 flex items-center gap-2">📝 Items</h2>
         <div className="flex flex-col gap-4">
           {data.experience.map((exp, i) => (
             <div key={i} className="bg-white border-2 border-purple-400 rounded-lg p-4 flex flex-col gap-1">
@@ -62,7 +62,7 @@ const PeriodicCV: React.FC<Props> = ({ data }) => {
 
       {/* Skills Collection */}
       <section className="mb-8">
-        <h2 className="text-xl font-bold text-purple-900 mb-3 flex items-center gap-2">⚛️ Compounds</h2>
+        <h2 className="text-xl font-bold text-purple-900 mb-3 flex items-center gap-2">🎯 Skills</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {data.skills.map((skill, i) => (
             <div key={i} className="flex items-center gap-2 min-w-0 bg-purple-50 border border-purple-300 rounded p-2">
@@ -83,7 +83,7 @@ const PeriodicCV: React.FC<Props> = ({ data }) => {
           {data.education.map((edu, i) => (
             <div key={i} className="bg-white border-2 border-purple-400 rounded-lg p-4 flex flex-col gap-1">
               <div className="font-bold text-purple-900">{edu.degree}</div>
-              <div className="text-purple-700 text-sm">@ {edu.school}</div>
+              <div className="text-purple-700 text-sm">@ {edu.institution}</div>
               <div className="text-purple-600 text-xs">{edu.startDate.toLocaleDateString()} - {edu.endDate ? edu.endDate.toLocaleDateString() : 'Present'}</div>
               <div className="text-purple-800 text-xs">{edu.description}</div>
             </div>
@@ -105,5 +105,5 @@ const PeriodicCV: React.FC<Props> = ({ data }) => {
   )
 }
 
-export default PeriodicCV
-export const PeriodicCV_EXPORT_SIZE = { width: 1200, height: 1700 } 
+export default CreativeCV
+export const CreativeCV_EXPORT_SIZE = { width: 1200, height: 1700 } 

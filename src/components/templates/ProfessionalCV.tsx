@@ -5,20 +5,20 @@ interface Props {
   data: CVData
 }
 
-const SocialCV: React.FC<Props> = ({ data }) => {
+const ProfessionalCV: React.FC<Props> = ({ data }) => {
   const totalExperience = data.experience.length
   const totalSkills = data.skills.length
   const totalEducation = data.education.length
 
   return (
     <div className="bg-gradient-to-br from-blue-100 to-blue-200 p-6 rounded-2xl shadow-2xl border-4 border-blue-700 max-w-3xl mx-auto w-full font-sans">
-      {/* Social Header */}
+      {/* Professional Header */}
       <div className="text-center mb-6">
-        <h1 className="text-4xl font-extrabold text-blue-900 drop-shadow flex items-center justify-center gap-2">📱 {data.personalInfo.name}</h1>
-        <p className="text-blue-700 text-lg">Professional Social</p>
+        <h1 className="text-4xl font-extrabold text-blue-900 drop-shadow flex items-center justify-center gap-2">👔 {data.personalInfo.name}</h1>
+        <p className="text-blue-700 text-lg">Professional Business</p>
       </div>
 
-      {/* Social Stats */}
+      {/* Professional Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-blue-50 p-4 rounded-lg text-center border-2 border-blue-400">
           <div className="text-2xl font-bold text-blue-900">{totalExperience}</div>
@@ -38,9 +38,9 @@ const SocialCV: React.FC<Props> = ({ data }) => {
         </div>
       </div>
 
-      {/* Experience Posts */}
+      {/* Experience Items */}
       <section className="mb-8">
-        <h2 className="text-xl font-bold text-blue-900 mb-3 flex items-center gap-2">📝 Posts</h2>
+        <h2 className="text-xl font-bold text-blue-900 mb-3 flex items-center gap-2">📝 Items</h2>
         <div className="flex flex-col gap-4">
           {data.experience.map((exp, i) => (
             <div key={i} className="bg-white border-2 border-blue-400 rounded-lg p-4 flex flex-col gap-1">
@@ -83,7 +83,7 @@ const SocialCV: React.FC<Props> = ({ data }) => {
           {data.education.map((edu, i) => (
             <div key={i} className="bg-white border-2 border-blue-400 rounded-lg p-4 flex flex-col gap-1">
               <div className="font-bold text-blue-900">{edu.degree}</div>
-              <div className="text-blue-700 text-sm">@ {edu.school}</div>
+              <div className="text-blue-700 text-sm">@ {edu.institution}</div>
               <div className="text-blue-600 text-xs">{edu.startDate.toLocaleDateString()} - {edu.endDate ? edu.endDate.toLocaleDateString() : 'Present'}</div>
               <div className="text-blue-800 text-xs">{edu.description}</div>
             </div>
@@ -105,5 +105,5 @@ const SocialCV: React.FC<Props> = ({ data }) => {
   )
 }
 
-export default SocialCV
-export const SocialCV_EXPORT_SIZE = { width: 1200, height: 1700 } 
+export default ProfessionalCV
+export const ProfessionalCV_EXPORT_SIZE = { width: 1200, height: 1700 } 

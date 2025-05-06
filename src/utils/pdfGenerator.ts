@@ -1,7 +1,13 @@
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
-export const generatePDF = async (elementId: string, filename: string = 'cv.pdf'): Promise<void> => {
+export const generateExport = async (
+  elementId: string,
+  format: 'jpg' | 'pdf' = 'jpg',
+  width: number = 1200,
+  height: number = 1700,
+  filename: string = 'cv'
+): Promise<void> => {
   const element = document.getElementById(elementId);
   if (!element) {
     throw new Error('Element not found');
@@ -9,27 +15,33 @@ export const generatePDF = async (elementId: string, filename: string = 'cv.pdf'
 
   try {
     const canvas = await html2canvas(element, {
-      scale: 1.5, // Lepsza jakość, mniejszy rozmiar niż 2
+      scale: 1.5,
+      width,
+      height,
       useCORS: true,
       logging: false,
     });
 
-    // JPEG zamiast PNG, quality 0.85
-    const imgData = canvas.toDataURL('image/jpeg', 0.85);
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'px',
-      format: 'a4',
-    });
-
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(filename);
+    if (format === 'jpg') {
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const link = document.createElement('a');
+      link.href = imgData;
+      link.download = `${filename}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      const imgData = canvas.toDataURL('image/jpeg', 0.85);
+      const pdf = new jsPDF({
+        orientation: width > height ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [width, height],
+      });
+      pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
+      pdf.save(`${filename}.pdf`);
+    }
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    console.error('Error generating export:', error);
     throw error;
   }
 }; 

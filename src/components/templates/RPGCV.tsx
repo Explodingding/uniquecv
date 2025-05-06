@@ -102,4 +102,6 @@ const RPGCV: React.FC<Props> = ({ data }) => {
   )
 }
 
-export default RPGCV 
+export default RPGCV
+
+export const RPGCV_EXPORT_SIZE = { width: 1200, height: 1700 } 

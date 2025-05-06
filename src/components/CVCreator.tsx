@@ -12,17 +12,20 @@ import { TerminalCV } from './templates/TerminalCV'
 import { RetroCV } from './templates/RetroCV'
 import { EmojiCV } from './templates/EmojiCV'
 import { AsciiCV } from './templates/AsciiCV'
-import RPGCV from './templates/RPGCV'
+import RPGCV, { RPGCV_EXPORT_SIZE } from './templates/RPGCV'
 import SocialCV from './templates/SocialCV'
 import CodeCV from './templates/CodeCV'
 import PeriodicCV from './templates/PeriodicCV'
-import RecipeCV from './templates/RecipeCV'
+import RecipeCV, { RecipeCV_EXPORT_SIZE } from './templates/RecipeCV'
 import MetroCV from './templates/MetroCV'
-import BoardCV from './templates/BoardCV'
-import { generatePDF } from '../utils/pdfGenerator'
-import { SkillsForm } from './cv-sections/SkillsForm'
-import { EducationForm } from './cv-sections/EducationForm'
+import { generateExport } from '../utils/pdfGenerator'
 import { SWOTAnalysis } from './cv-sections/SWOTAnalysis'
+import ModernCV from './templates/ModernCV'
+import ClassicCV from './templates/ClassicCV'
+import MinimalCV from './templates/MinimalCV'
+import BoardCV from './templates/BoardCV'
+import { toPng } from 'html-to-image'
+import { jsPDF } from 'jspdf'
 
 const sampleCVData: CVData = {
   personalInfo: {
@@ -136,10 +139,85 @@ const templateIcons: Record<Template, string> = {
   board: '🎲'
 }
 
+const exportSizes: Record<string, { width: number, height: number }> = {
+  recipe: RecipeCV_EXPORT_SIZE,
+  modern: { width: 1200, height: 1700 },
+  classic: { width: 1200, height: 1700 },
+  minimal: { width: 1200, height: 1700 },
+  rpg: { width: 1200, height: 1700 },
+  board: { width: 1200, height: 1700 },
+  metro: { width: 1200, height: 1700 },
+  social: { width: 1200, height: 1700 },
+  code: { width: 1200, height: 1700 },
+  periodic: { width: 1200, height: 1700 },
+  comic: { width: 1200, height: 1700 },
+  terminal: { width: 1200, height: 1700 },
+  retro: { width: 1200, height: 1700 },
+  emoji: { width: 1200, height: 1700 },
+  ascii: { width: 1200, height: 1700 },
+  infographic: { width: 1200, height: 1700 },
+  dashboard: { width: 1200, height: 1700 },
+  swot: { width: 1200, height: 1700 },
+}
+
+const templateList = [
+  { id: 'modern', name: 'Modern', icon: '🎨' },
+  { id: 'classic', name: 'Classic', icon: '📄' },
+  { id: 'minimal', name: 'Minimal', icon: '⚪' },
+  { id: 'rpg', name: 'RPG', icon: '⚔️' },
+  { id: 'board', name: 'Board', icon: '🎲' },
+  { id: 'recipe', name: 'Recipe', icon: '📝' },
+  { id: 'metro', name: 'Metro', icon: '🚇' },
+  { id: 'social', name: 'Social', icon: '📱' },
+  { id: 'code', name: 'Code', icon: '💻' },
+  { id: 'periodic', name: 'Periodic', icon: '🧪' },
+  { id: 'comic', name: 'Comic', icon: '🦸' },
+  { id: 'terminal', name: 'Terminal', icon: '⌨️' },
+  { id: 'retro', name: 'Retro', icon: '🎮' },
+  { id: 'emoji', name: 'Emoji', icon: '😊' },
+  { id: 'ascii', name: 'ASCII', icon: '📟' },
+  { id: 'infographic', name: 'Infographic', icon: '📊' },
+  { id: 'dashboard', name: 'Dashboard', icon: '📈' },
+  { id: 'swot', name: 'SWOT', icon: '🎯' },
+]
+
+const templateComponents: Record<string, React.FC<{ data: CVData }>> = {
+  modern: ModernCV,
+  classic: ClassicCV,
+  minimal: MinimalCV,
+  rpg: RPGCV,
+  board: BoardCV,
+  recipe: RecipeCV,
+  metro: MetroCV,
+  social: SocialCV,
+  code: CodeCV,
+  periodic: PeriodicCV,
+  comic: ComicCV,
+  terminal: TerminalCV,
+  retro: RetroCV,
+  emoji: EmojiCV,
+  ascii: AsciiCV,
+  infographic: InfographicCV,
+  dashboard: DashboardCV,
+  swot: SWOTCV,
+}
+
+const renderTemplate = (template: Template, data: CVData) => {
+  switch (template) {
+    case 'recipe':
+      return <RecipeCV data={data} />
+    default:
+      return null
+  }
+}
+
 export const CVCreator: React.FC = () => {
-  const [selectedTemplate, setSelectedTemplate] = useState<Template>('timeline')
+  const [selectedTemplate, setSelectedTemplate] = useState<Template>('recipe')
   const [cvData, setCVData] = useState<CVData>(sampleCVData)
   const [activeTab, setActiveTab] = useState<'personal' | 'experience' | 'skills' | 'education' | 'swot'>('personal')
+  const [exportFormat, setExportFormat] = useState<'jpg' | 'pdf'>('jpg')
+  const [exportSize, setExportSize] = useState<'default' | 'a4' | 'square' | 'fit'>('default')
+  const cvRef = useRef<HTMLDivElement>(null)
 
   const handlePersonalInfoChange = (data: Partial<PersonalInfo>) => {
     setCVData(prev => ({ ...prev, personalInfo: { ...prev.personalInfo, ...data } }))
@@ -163,65 +241,82 @@ export const CVCreator: React.FC = () => {
     }))
   }
 
-  const handleExportPDF = () => {
-    generatePDF('cv-preview')
+  const handleExport = () => {
+    let width = 1200
+    let height = 1700
+    if (exportSize === 'default' && exportSizes[selectedTemplate]) {
+      width = exportSizes[selectedTemplate].width
+      height = exportSizes[selectedTemplate].height
+    } else if (exportSize === 'a4') {
+      width = 1240; height = 1754 // A4 150dpi
+    } else if (exportSize === 'square') {
+      width = 1400; height = 1400
+    } else if (exportSize === 'fit') {
+      const el = document.getElementById('cv-preview')
+      if (el) {
+        const rect = el.getBoundingClientRect()
+        width = Math.round(rect.width)
+        height = Math.round(rect.height)
+      }
+    }
+    generateExport('cv-preview', exportFormat, width, height)
   }
 
-  const templateList: Template[] = [
-    'timeline', 'dashboard', 'infographic', 'swot', 'comic', 'terminal', 
-    'retro', 'emoji', 'ascii', 'rpg', 'social', 'code', 'periodic', 
-    'recipe', 'metro', 'board'
-  ]
+  const handleExportJPG = async () => {
+    if (!cvRef.current) return
 
-  const renderTemplate = (template: Template, data: CVData) => {
-    switch (template) {
-      case 'timeline':
-        return <TimelineCV data={data} />
-      case 'dashboard':
-        return <DashboardCV data={data} />
-      case 'infographic':
-        return <InfographicCV data={data} />
-      case 'swot':
-        return <SWOTCV data={data} />
-      case 'comic':
-        return <ComicCV data={data} />
-      case 'terminal':
-        return <TerminalCV data={data} />
-      case 'retro':
-        return <RetroCV data={data} />
-      case 'emoji':
-        return <EmojiCV data={data} />
-      case 'ascii':
-        return <AsciiCV data={data} />
-      case 'rpg':
-        return <RPGCV data={data} />
-      case 'social':
-        return <SocialCV data={data} />
-      case 'code':
-        return <CodeCV data={data} />
-      case 'periodic':
-        return <PeriodicCV data={data} />
-      case 'recipe':
-        return <RecipeCV data={data} />
-      case 'metro':
-        return <MetroCV data={data} />
-      case 'board':
-        return <BoardCV data={data} />
-      default:
-        return null
+    const element = cvRef.current
+    const { width, height } = exportSizes[selectedTemplate]
+
+    try {
+      const dataUrl = await toPng(element, {
+        width,
+        height,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left',
+        },
+      })
+
+      const link = document.createElement('a')
+      link.download = 'cv.png'
+      link.href = dataUrl
+      link.click()
+    } catch (error) {
+      console.error('Error exporting to JPG:', error)
     }
   }
 
-  const carouselRef = useRef<HTMLDivElement>(null)
-  const handleScroll = (dir: 'left' | 'right') => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' })
+  const handleExportPDF = async () => {
+    if (!cvRef.current) return
+
+    const element = cvRef.current
+    const { width, height } = exportSizes[selectedTemplate]
+
+    try {
+      const dataUrl = await toPng(element, {
+        width,
+        height,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left',
+        },
+      })
+
+      const pdf = new jsPDF({
+        orientation: height > width ? 'portrait' : 'landscape',
+        unit: 'px',
+        format: [width, height],
+      })
+
+      pdf.addImage(dataUrl, 'PNG', 0, 0, width, height)
+      pdf.save('cv.pdf')
+    } catch (error) {
+      console.error('Error exporting to PDF:', error)
     }
   }
-  const handleRandomTemplate = () => {
-    const idx = Math.floor(Math.random() * templateList.length)
-    setSelectedTemplate(templateList[idx])
-  }
+
+  const SelectedTemplate = templateComponents[selectedTemplate]
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -268,22 +363,21 @@ export const CVCreator: React.FC = () => {
         {/* Karuzela sticky nad podglądem CV */}
         <div className="flex items-center gap-4 mb-8 bg-gray-50 py-4 px-3 rounded shadow border border-gray-200" style={{ height: 100, minHeight: 100, maxHeight: 100 }}>
           <button onClick={() => handleScroll('left')} className="px-2 py-1 bg-gray-200 rounded-full text-2xl">◀</button>
-          <div ref={carouselRef} className="flex gap-4 overflow-x-auto no-scrollbar overflow-y-hidden" style={{ maxWidth: 1100, height: 90, minHeight: 90, maxHeight: 90 }}>
+          <div ref={cvRef} className="flex gap-4 overflow-x-auto no-scrollbar overflow-y-hidden" style={{ maxWidth: 1100, height: 90, minHeight: 90, maxHeight: 90 }}>
             {templateList.map((template) => (
               <div
-                key={template}
+                key={template.id}
                 style={{ height: 86, minHeight: 86, maxHeight: 86 }}
-                className={`min-w-[90px] p-2 rounded-lg border-2 cursor-pointer flex flex-col items-center justify-center transition-all duration-200 ${selectedTemplate === template ? 'border-primary scale-110 bg-primary/10 shadow-lg' : 'border-gray-200 bg-white hover:bg-primary/5'}`}
-                onClick={() => setSelectedTemplate(template)}
-                title={templateDescriptions[template] || ''}
+                className={`min-w-[90px] p-2 rounded-lg border-2 cursor-pointer flex flex-col items-center justify-center transition-all duration-200 ${selectedTemplate === template.id ? 'border-primary scale-110 bg-primary/10 shadow-lg' : 'border-gray-200 bg-white hover:bg-primary/5'}`}
+                onClick={() => setSelectedTemplate(template.id)}
+                title={templateDescriptions[template.id] || ''}
               >
-                <span className="text-3xl mb-2">{templateIcons[template]}</span>
-                <div className="text-center font-bold text-[12px] leading-tight">{template.charAt(0).toUpperCase() + template.slice(1)} CV</div>
+                <span className="text-3xl mb-2">{template.icon}</span>
+                <div className="text-center font-bold text-[12px] leading-tight">{template.name} CV</div>
               </div>
             ))}
           </div>
           <button onClick={() => handleScroll('right')} className="px-2 py-1 bg-gray-200 rounded-full text-2xl">▶</button>
-          <button onClick={handleRandomTemplate} className="ml-2 px-4 py-2 bg-accent text-white rounded shadow hover:bg-accent-dark text-base">Losuj</button>
         </div>
         {/* Podgląd CV */}
         <motion.div
@@ -292,14 +386,30 @@ export const CVCreator: React.FC = () => {
           className="bg-white rounded-lg shadow p-8 mb-12 w-full max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
         >
           <h2 className="text-lg font-medium mb-4">Podgląd CV</h2>
+          <div className="flex flex-wrap gap-4 mb-4 items-center">
+            <label className="font-semibold">Format:
+              <select value={exportFormat} onChange={e => setExportFormat(e.target.value as any)} className="ml-2 border rounded px-2 py-1">
+                <option value="jpg">JPG</option>
+                <option value="pdf">PDF</option>
+              </select>
+            </label>
+            <label className="font-semibold">Rozmiar:
+              <select value={exportSize} onChange={e => setExportSize(e.target.value as any)} className="ml-2 border rounded px-2 py-1">
+                <option value="default">Domyślny dla szablonu</option>
+                <option value="a4">A4 (1240x1754)</option>
+                <option value="square">Kwadrat (1400x1400)</option>
+                <option value="fit">Dopasuj do zawartości</option>
+              </select>
+            </label>
+          </div>
           <button
-            onClick={handleExportPDF}
+            onClick={handleExport}
             className="mb-4 px-6 py-2 rounded-md bg-primary text-white font-semibold shadow hover:bg-primary-dark transition"
           >
-            Eksportuj do PDF
+            Eksportuj do {exportFormat.toUpperCase()}
           </button>
           <div id="cv-preview" className="min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center mb-6">
-            {renderTemplate(selectedTemplate, cvData)}
+            <SelectedTemplate data={cvData} />
           </div>
         </motion.div>
         {/* Edytor sekcji */}
@@ -332,19 +442,13 @@ export const CVCreator: React.FC = () => {
             {activeTab === 'skills' && (
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-medium mb-4">Umiejętności</h2>
-                <SkillsForm
-                  skills={cvData.skills}
-                  onUpdate={skills => setCVData(prev => ({ ...prev, skills }))}
-                />
+                {/* Skills section removed as per instructions */}
               </div>
             )}
             {activeTab === 'education' && (
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-medium mb-4">Edukacja</h2>
-                <EducationForm
-                  education={cvData.education}
-                  onUpdate={education => setCVData(prev => ({ ...prev, education }))}
-                />
+                {/* Education section removed as per instructions */}
               </div>
             )}
             {activeTab === 'swot' && (

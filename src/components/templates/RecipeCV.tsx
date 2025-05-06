@@ -6,42 +6,52 @@ interface Props {
 }
 
 const RecipeCV: React.FC<Props> = ({ data }) => {
+  const totalExperience = data.experience.length
+  const totalSkills = data.skills.length
+  const totalEducation = data.education.length
+
   return (
-    <div className="bg-gradient-to-br from-lime-50 to-amber-100 p-6 rounded-2xl shadow-2xl border-4 border-lime-600 max-w-3xl mx-auto w-full font-serif">
+    <div className="bg-gradient-to-br from-orange-100 to-orange-200 p-6 rounded-2xl shadow-2xl border-4 border-orange-700 max-w-3xl mx-auto w-full font-serif">
       {/* Recipe Header */}
       <div className="text-center mb-6">
-        <h1 className="text-4xl font-extrabold text-lime-800 flex items-center justify-center gap-2">🍳 {data.personalInfo.name}</h1>
-        <p className="text-lime-700 text-lg italic">Professional Recipe</p>
+        <h1 className="text-4xl font-extrabold text-orange-900 drop-shadow flex items-center justify-center gap-2">👨‍🍳 {data.personalInfo.name}</h1>
+        <p className="text-orange-700 text-lg">Professional Recipe</p>
       </div>
-      {/* Ingredients (Skills) */}
-      <section className="mb-8">
-        <h2 className="text-xl font-bold text-lime-800 mb-3 flex items-center gap-2">🥕 Ingredients</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {data.skills.map((skill, i) => (
-            <div key={i} className="flex items-center gap-2 min-w-0 bg-white border border-lime-300 rounded p-2">
-              <span className="text-lime-800 font-semibold truncate max-w-[100px] min-w-0">{skill.name}</span>
-              <div className="flex-1 min-w-0 w-full h-2 bg-lime-200 rounded-full overflow-hidden">
-                <div className="h-full bg-lime-500 rounded-full" style={{ width: `${(skill.level / 10) * 100}%` }} />
-              </div>
-              <span className="text-xs text-lime-700 w-6 text-right">{skill.level}</span>
-            </div>
-          ))}
+
+      {/* Recipe Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-orange-50 p-4 rounded-lg text-center border-2 border-orange-400">
+          <div className="text-2xl font-bold text-orange-900">{totalExperience}</div>
+          <div className="text-sm text-orange-700">Experience</div>
         </div>
-      </section>
-      {/* Instructions (Experience) */}
+        <div className="bg-orange-50 p-4 rounded-lg text-center border-2 border-orange-400">
+          <div className="text-2xl font-bold text-orange-900">{totalSkills}</div>
+          <div className="text-sm text-orange-700">Skills</div>
+        </div>
+        <div className="bg-orange-50 p-4 rounded-lg text-center border-2 border-orange-400">
+          <div className="text-2xl font-bold text-orange-900">{totalEducation}</div>
+          <div className="text-sm text-orange-700">Education</div>
+        </div>
+        <div className="bg-orange-50 p-4 rounded-lg text-center border-2 border-orange-400">
+          <div className="text-2xl font-bold text-orange-900">{data.experience.length}</div>
+          <div className="text-sm text-orange-700">Positions</div>
+        </div>
+      </div>
+
+      {/* Experience Track */}
       <section className="mb-8">
-        <h2 className="text-xl font-bold text-lime-800 mb-3 flex items-center gap-2">📝 Instructions</h2>
+        <h2 className="text-xl font-bold text-orange-900 mb-3 flex items-center gap-2">📝 Instructions</h2>
         <div className="flex flex-col gap-4">
           {data.experience.map((exp, i) => (
-            <div key={i} className="bg-white border-2 border-lime-400 rounded-lg p-4 flex flex-col gap-1">
+            <div key={i} className="bg-white border-2 border-orange-400 rounded-lg p-4 flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <span className="w-8 h-8 bg-lime-500 rounded-full flex items-center justify-center text-white font-bold">{i + 1}</span>
-                <span className="font-bold text-lime-900 truncate max-w-[120px] min-w-0">{exp.position}</span>
-                <span className="text-lime-700 text-sm">@ {exp.company}</span>
+                <span className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">{i + 1}</span>
+                <span className="font-bold text-orange-900 truncate max-w-[120px] min-w-0">{exp.position}</span>
+                <span className="text-orange-700 text-sm">@ {exp.company}</span>
               </div>
-              <div className="text-xs text-lime-600">{exp.startDate.toLocaleDateString()} - {exp.endDate ? exp.endDate.toLocaleDateString() : 'Present'}</div>
+              <div className="text-xs text-orange-600">{exp.startDate.toLocaleDateString()} - {exp.endDate ? exp.endDate.toLocaleDateString() : 'Present'}</div>
               {exp.achievements.length > 0 && (
-                <ul className="list-disc list-inside text-xs text-lime-700 mt-1">
+                <ul className="list-disc list-inside text-xs text-orange-700 mt-1">
                   {exp.achievements.map((ach, j) => <li key={j}>{ach}</li>)}
                 </ul>
               )}
@@ -49,34 +59,51 @@ const RecipeCV: React.FC<Props> = ({ data }) => {
           ))}
         </div>
       </section>
-      {/* Notes (Education) */}
+
+      {/* Skills Collection */}
       <section className="mb-8">
-        <h2 className="text-xl font-bold text-lime-800 mb-3 flex items-center gap-2">📚 Notes</h2>
-        <div className="flex flex-col gap-4">
-          {data.education.map((edu, i) => (
-            <div key={i} className="bg-white border-2 border-lime-400 rounded-lg p-4 flex flex-col gap-1">
-              <div className="font-bold text-lime-900">{edu.degree}</div>
-              <div className="text-lime-700 text-sm">@ {edu.institution}</div>
-              <div className="text-lime-600 text-xs">{edu.startDate.toLocaleDateString()} - {edu.endDate ? edu.endDate.toLocaleDateString() : 'Present'}</div>
-              <div className="text-lime-800 text-xs">{edu.field}</div>
+        <h2 className="text-xl font-bold text-orange-900 mb-3 flex items-center gap-2">🧂 Ingredients</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {data.skills.map((skill, i) => (
+            <div key={i} className="flex items-center gap-2 min-w-0 bg-orange-50 border border-orange-300 rounded p-2">
+              <span className="text-orange-800 font-semibold truncate max-w-[100px] min-w-0">{skill.name}</span>
+              <div className="flex-1 min-w-0 w-full h-2 bg-orange-200 rounded-full overflow-hidden">
+                <div className="h-full bg-orange-500 rounded-full" style={{ width: `${(skill.level / 10) * 100}%` }} />
+              </div>
+              <span className="text-xs text-orange-700 w-6 text-right">{skill.level}</span>
             </div>
           ))}
         </div>
       </section>
-      {/* Chef's Notes (Summary) */}
-      <section className="bg-white border-2 border-lime-400 rounded-xl p-4 flex flex-col gap-2 mb-8">
-        <h2 className="text-lg font-bold text-lime-800 mb-2 flex items-center gap-2">👨‍🍳 Chef's Notes</h2>
-        <p className="text-lime-800 mb-2 whitespace-pre-line text-sm">{data.personalInfo.summary}</p>
+
+      {/* Education Path */}
+      <section className="mb-8">
+        <h2 className="text-xl font-bold text-orange-900 mb-3 flex items-center gap-2">🎓 Education</h2>
+        <div className="flex flex-col gap-4">
+          {data.education.map((edu, i) => (
+            <div key={i} className="bg-white border-2 border-orange-400 rounded-lg p-4 flex flex-col gap-1">
+              <div className="font-bold text-orange-900">{edu.degree}</div>
+              <div className="text-orange-700 text-sm">@ {edu.school}</div>
+              <div className="text-orange-600 text-xs">{edu.startDate.toLocaleDateString()} - {edu.endDate ? edu.endDate.toLocaleDateString() : 'Present'}</div>
+              <div className="text-orange-800 text-xs">{edu.description}</div>
+            </div>
+          ))}
+        </div>
       </section>
-      {/* Contact */}
-      <section className="bg-lime-50 border-2 border-lime-400 rounded-xl p-4 flex flex-col gap-2">
-        <h2 className="text-lg font-bold text-lime-800 mb-2 flex items-center gap-2">📞 Contact</h2>
-        <div className="text-lime-700 text-xs">Email: {data.personalInfo.email}</div>
-        <div className="text-lime-700 text-xs">Phone: {data.personalInfo.phone}</div>
-        <div className="text-lime-700 text-xs">Location: {data.personalInfo.location}</div>
+
+      {/* Chef's Notes */}
+      <section className="bg-orange-50 border-2 border-orange-400 rounded-xl p-4 flex flex-col gap-2">
+        <h2 className="text-lg font-bold text-orange-900 mb-2 flex items-center gap-2">👨‍🍳 Chef's Notes</h2>
+        <p className="text-orange-800 mb-2 whitespace-pre-line text-sm">{data.personalInfo.summary}</p>
+        <div className="mt-2">
+          <div className="text-orange-700 text-xs">Email: {data.personalInfo.email}</div>
+          <div className="text-orange-700 text-xs">Phone: {data.personalInfo.phone}</div>
+          <div className="text-orange-700 text-xs">Location: {data.personalInfo.location}</div>
+        </div>
       </section>
     </div>
   )
 }
 
-export default RecipeCV 
+export default RecipeCV
+export const RecipeCV_EXPORT_SIZE = { width: 1200, height: 1700 } 

@@ -5,20 +5,20 @@ interface Props {
   data: CVData
 }
 
-const MetroCV: React.FC<Props> = ({ data }) => {
+const ClassicCV: React.FC<Props> = ({ data }) => {
   const totalExperience = data.experience.length
   const totalSkills = data.skills.length
   const totalEducation = data.education.length
 
   return (
-    <div className="bg-gradient-to-br from-gray-100 to-gray-200 p-6 rounded-2xl shadow-2xl border-4 border-gray-700 max-w-3xl mx-auto w-full font-sans">
-      {/* Metro Header */}
+    <div className="bg-gradient-to-br from-gray-100 to-gray-200 p-6 rounded-2xl shadow-2xl border-4 border-gray-700 max-w-3xl mx-auto w-full font-serif">
+      {/* Classic Header */}
       <div className="text-center mb-6">
-        <h1 className="text-4xl font-extrabold text-gray-900 drop-shadow flex items-center justify-center gap-2">🚇 {data.personalInfo.name}</h1>
-        <p className="text-gray-700 text-lg">Professional Metro</p>
+        <h1 className="text-4xl font-extrabold text-gray-900 drop-shadow flex items-center justify-center gap-2">📄 {data.personalInfo.name}</h1>
+        <p className="text-gray-700 text-lg">Professional Classic</p>
       </div>
 
-      {/* Metro Stats */}
+      {/* Classic Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-gray-50 p-4 rounded-lg text-center border-2 border-gray-400">
           <div className="text-2xl font-bold text-gray-900">{totalExperience}</div>
@@ -38,9 +38,9 @@ const MetroCV: React.FC<Props> = ({ data }) => {
         </div>
       </div>
 
-      {/* Experience Track */}
+      {/* Experience Items */}
       <section className="mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">🚉 Stations</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">📝 Items</h2>
         <div className="flex flex-col gap-4">
           {data.experience.map((exp, i) => (
             <div key={i} className="bg-white border-2 border-gray-400 rounded-lg p-4 flex flex-col gap-1">
@@ -62,7 +62,7 @@ const MetroCV: React.FC<Props> = ({ data }) => {
 
       {/* Skills Collection */}
       <section className="mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">🚊 Lines</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">🎯 Skills</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {data.skills.map((skill, i) => (
             <div key={i} className="flex items-center gap-2 min-w-0 bg-gray-50 border border-gray-300 rounded p-2">
@@ -91,9 +91,9 @@ const MetroCV: React.FC<Props> = ({ data }) => {
         </div>
       </section>
 
-      {/* Metro Info */}
+      {/* Profile Info */}
       <section className="bg-gray-50 border-2 border-gray-400 rounded-xl p-4 flex flex-col gap-2">
-        <h2 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">🚇 Metro Info</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">👤 Profile</h2>
         <p className="text-gray-800 mb-2 whitespace-pre-line text-sm">{data.personalInfo.summary}</p>
         <div className="mt-2">
           <div className="text-gray-700 text-xs">Email: {data.personalInfo.email}</div>
@@ -105,5 +105,5 @@ const MetroCV: React.FC<Props> = ({ data }) => {
   )
 }
 
-export default MetroCV
-export const MetroCV_EXPORT_SIZE = { width: 1200, height: 1700 } 
+export default ClassicCV
+export const ClassicCV_EXPORT_SIZE = { width: 1200, height: 1700 } 

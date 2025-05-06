@@ -1,0 +1,8 @@
+export { default as AcademicCV, AcademicCV_EXPORT_SIZE } from './AcademicCV'
+export { default as ArtisticCV, ArtisticCV_EXPORT_SIZE } from './ArtisticCV'
+export { default as BusinessCV, BusinessCV_EXPORT_SIZE } from './BusinessCV'
+export { default as CreativeCV, CreativeCV_EXPORT_SIZE } from './CreativeCV'
+export { default as ModernCV, ModernCV_EXPORT_SIZE } from './ModernCV'
+export { default as ProfessionalCV, ProfessionalCV_EXPORT_SIZE } from './ProfessionalCV'
+export { default as SimpleCV, SimpleCV_EXPORT_SIZE } from './SimpleCV'
+export { default as TechCV, TechCV_EXPORT_SIZE } from './TechCV' 
